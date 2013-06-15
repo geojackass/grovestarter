@@ -4,8 +4,13 @@
 * author Shoichi Otomo
 */
 
+#include <Servo.h>
+
+Servo groveServo;
+
+int potentialmeter = 0; //Grove analogIn0
+int shaft;
 int button1 = 1; //Grove port number for button
-int button2 = 2; //Grove port number for button
 int touch = 3; // Grove port number for touch sencer
 
 int LED_B = 7; //Grove port number for LED_BLUE
@@ -13,8 +18,10 @@ int LED_G = 8; //Grove port number for LED_GREEN
 int LED_R = 9; //Grove port number for RED
 
 void setup(){
+  groveServo.attach(2); //prepare for servo
+  pinMode(potentialmeter, INPUT); //set potentialmeter input
+  
   pinMode(button1, INPUT); //set button input device
-  pinMode(button2, INPUT); //set button input device
   pinMode(touch, INPUT); //set button input touch device
   
   pinMode(LED_B, OUTPUT); //set LED as an OUTPUT
@@ -26,22 +33,25 @@ void loop(){
   blueLED();
   greenLED();
   redLED();
+  servo();
 }
 
+
 void blueLED(){
-  int buttonState1 = digitalRead(button1);
+  int touchState = digitalRead(touch);
   
-  if(buttonState1 == 1){
+  if(touchState == 1){
     digitalWrite(LED_B, 1);
   }else{
     digitalWrite(LED_B, 0);
   }
 }
 
+
 void greenLED(){
-  int buttonState2 = digitalRead(button2);
+  int buttonState1 = digitalRead(button1);
   
-  if(buttonState2 == 1){
+  if(buttonState1 == 1){
     digitalWrite(LED_G, 1);
   }else{
     digitalWrite(LED_G, 0);
@@ -49,11 +59,20 @@ void greenLED(){
 }
 
 void redLED(){
-  int touchState = digitalRead(touch);
-  //read the status of touch
-  if(touchState == 1){
-    digitalWrite(LED_R, 1); //turn on the LED
+  int buttonState1 = digitalRead(button1);
+  //read the status of button
+  if(buttonState1 == 0){
+    digitalWrite(LED_R, 1); //button OFF -> turn on the LED
   }else{
-    digitalWrite(LED_R, 0); //turn off the LED
+    digitalWrite(LED_R, 0); //button ON -> turn off the LED
   }
 }
+
+
+void servo(){
+  shaft = analogRead(potentialmeter);
+  shaft = map(shaft, 0, 1023, 0, 179);
+  groveServo.write(shaft);
+  delay(15);
+}
+
